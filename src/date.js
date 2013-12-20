@@ -11,6 +11,8 @@ define([
 	"cldr/supplemental"
 ], function( Cldr, commonGetLocale, Globalize, dateAllPresets, dateExpandPattern, dateFormat, dateParse, alwaysArray, arraySome ) {
 
+var formatSuper;
+
 /**
  * Globalize.format( value, pattern, locale )
  *
@@ -22,10 +24,14 @@ define([
  *
  * Formats a date or number according to the given pattern string and the given locale (or the default locale if not specified).
  */
+formatSuper = Globalize.format;
 Globalize.format = function( value, pattern, locale ) {
-	locale = commonGetLocale( locale );
+	if ( formatSuper ) {
+		value = formatSuper.apply( Globalize, arguments );
+	}
 
 	if ( value instanceof Date ) {
+		locale = commonGetLocale( locale );
 
 		if ( !pattern ) {
 			throw new Error( "Missing pattern" );
