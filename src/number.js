@@ -1,7 +1,8 @@
 define([
 	"./common/get-locale",
-	"./core"
-], function( commonGetLocale, Globalize ) {
+	"./core",
+	"./number/format"
+], function( commonGetLocale, Globalize, numberFormat ) {
 
 var formatSuper;
 
@@ -24,7 +25,6 @@ Globalize.format = function( value, pattern, locale ) {
 
 	if ( typeof value === "number" ) {
 		locale = commonGetLocale( locale );
-		pattern = numberExpandPattern( pattern, locale );
 		value = numberFormat( value, pattern, locale );
 	}
 
@@ -42,7 +42,7 @@ Globalize.format = function( value, pattern, locale ) {
  *
  * Return a Number or null.
  */
-Globalize.parseNumber = function( value, patterns, locale ) {
+Globalize.parseNumber = function( /*value, patterns, locale*/ ) {
 	return null;
 };
 
