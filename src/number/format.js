@@ -1,11 +1,11 @@
 define([
+	"./format/properties",
 	"./minus-sign",
 	"./numbering-system",
-	"./pattern-re",
 	"./symbol-name",
 	"../util/number/truncate",
 	"../util/string/pad"
-], function( numberMinusSign, numberNumberingSystem, numberPatternRe, numberSymbolName, numberTruncate, stringPad ) {
+], function( numberFormatProperties, numberMinusSign, numberNumberingSystem, numberSymbolName, numberTruncate, stringPad ) {
 
 /**
  * format( number, pattern, cldr )
@@ -20,7 +20,7 @@ define([
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( number, pattern, cldr, options ) {
-	var aux, fractionPattern, integerPattern, minimumFractionDigits, padding, prefix, ret, scientificNotation, significantPattern, suffix,
+	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, order, padding, prefix, properties, ret, roundIncrement, suffix,
 	numberingSystem = numberNumberingSystem( cldr );
 
 	// Infinity, -Infinity, or NaN
@@ -32,64 +32,52 @@ return function( number, pattern, cldr, options ) {
 		return number === -Infinity ? numberMinusSign( cldr ) + ret : ret;
 	}
 
-	pattern = pattern.match( numberPatternRe );
-	if ( !pattern ) {
-		return null;
-	}
-
-	options = options || {};
-	padding = pattern[ 3 ];
-	prefix = pattern[ 1 ];
-	scientificNotation = pattern[ 9 ];
-	significantPattern = pattern[ 8 ];
-	suffix = pattern[ 10 ];
+	properties = numberFormatProperties( pattern, cldr, options );
+	prefix = properties[ 0 ];
+	padding = properties[ 1 ];
+	minimumIntegerDigits = properties[ 2 ];
+	minimumFractionDigits = properties[ 3 ];
+	maximumFractionDigits = properties[ 4 ];
+	roundIncrement = properties[ 5 ];
+	suffix = properties[ 6 ];
 
 	ret = [ prefix ];
 
 	// Percent
-	if ( pattern[ 0 ].indexOf( "%" ) !== -1 ) {
+	if ( pattern.indexOf( "%" ) !== -1 ) {
 		number *= 100;
 
 	// Per mille
-	} else if ( pattern[ 0 ].indexOf( "\u2030" ) !== -1 ) {
+	} else if ( pattern.indexOf( "\u2030" ) !== -1 ) {
 		number *= 1000;
 	}
 
 	// Significant digit format
-	if ( significantPattern ) {
+	if ( false ) {
 		throw new Error( "Significant digit format not implemented" );
 
 	// Integer and fractional format
 	} else {
-		fractionPattern = pattern[ 7 ] || "";
-		integerPattern = pattern[ 6 ] || "";
 		aux = number;
 
-		if ( fractionPattern ) {
+		// Fraction
+		if ( maximumFractionDigits ) {
 
 			// Rounding
-			fractionPattern.replace( /[0-9]+/, function( increment ) {
-				minimumFractionDigits = increment;
-				increment = +( "0." + increment );
-				if ( increment ) {
-					aux = Math.round( aux / increment ) * increment;
-				}
-			});
+			if ( roundIncrement ) {
+				aux = Math.round( aux / roundIncrement ) * roundIncrement;
+			}
 
 			// Maximum fraction digits
-			if ( fractionPattern ) {
+			order = Math.pow( 10, maximumFractionDigits );
 
-				// 1: ignore decimal character
-				var order = Math.pow( 10, fractionPattern.length - 1 /* 1 */ );
-
-				// Truncate
-				aux = numberTruncate( aux * order) / order;
-			}
+			// Truncate
+			aux = numberTruncate( aux * order) / order;
 
 			// Minimum fraction digits
 			if ( minimumFractionDigits ) {
 				aux = String( aux ).split( "." );
-				aux[ 1 ] = stringPad( aux[ 1 ] || "", minimumFractionDigits.length, true );
+				aux[ 1 ] = stringPad( aux[ 1 ] || "", minimumFractionDigits, true );
 				aux = aux.join( "." );
 			}
 		} else {
@@ -99,22 +87,22 @@ return function( number, pattern, cldr, options ) {
 		aux = String( aux );
 
 		// Minimum integer digits
-		integerPattern.replace( /0+$/, function( minimumIntegerDigits ) {
+		if ( minimumIntegerDigits ) {
 			aux = aux.split( "." );
-			aux[ 0 ] = stringPad( aux[ 0 ], minimumIntegerDigits.length );
+			aux[ 0 ] = stringPad( aux[ 0 ], minimumIntegerDigits );
 			aux = aux.join( "." );
-		});
+		}
 
 		ret.push( aux );
 	}
 
 	// Scientific notation
-	if ( scientificNotation ) {
+	if ( false ) {
 		throw new Error( "Scientific notation not implemented" );
 	}
 
 	// Padding
-	if ( padding ) {
+	if ( false ) {
 		throw new Error( "Padding not implemented" );
 	}
 
