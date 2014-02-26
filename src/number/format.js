@@ -16,6 +16,10 @@ define([
  *
  * @cldr [Cldr instance].
  *
+ * @options [Object]:
+ * - minimumIntegerDigits: [Number] 
+ * - minimumFractionDigits, maximumFractionDigits: [Number] 
+ *
  * Return the formatted number.
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
@@ -32,12 +36,13 @@ return function( number, pattern, cldr, options ) {
 		return number === -Infinity ? numberMinusSign( cldr ) + ret : ret;
 	}
 
-	properties = numberFormatProperties( pattern, cldr, options );
+	options = options || {};
+	properties = numberFormatProperties( pattern );
 	prefix = properties[ 0 ];
 	padding = properties[ 1 ];
-	minimumIntegerDigits = properties[ 2 ];
-	minimumFractionDigits = properties[ 3 ];
-	maximumFractionDigits = properties[ 4 ];
+	minimumIntegerDigits = options.minimumIntegerDigits || properties[ 2 ];
+	minimumFractionDigits = options.minimumFractionDigits || properties[ 3 ];
+	maximumFractionDigits = options.maximumFractionDigits || properties[ 4 ];
 	roundIncrement = properties[ 5 ];
 	suffix = properties[ 6 ];
 
@@ -58,6 +63,12 @@ return function( number, pattern, cldr, options ) {
 
 	// Integer and fractional format
 	} else {
+
+		// Sanity check.
+		if ( minimumFractionDigits > maximumFractionDigits ) {
+			maximumFractionDigits = minimumFractionDigits;
+		}
+
 		aux = number;
 
 		// Fraction

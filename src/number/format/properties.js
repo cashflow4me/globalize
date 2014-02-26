@@ -3,18 +3,16 @@ define([
 ], function( numberPatternRe ) {
 
 /**
- * format( number, pattern, cldr )
+ * format( number, pattern )
  *
  * @number [Number].
  *
  * @pattern [String] raw pattern for numbers.
  *
- * @cldr [Cldr instance].
- *
  * Return the formatted number.
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
-return function( pattern, cldr, options ) {
+return function( pattern ) {
 	var fractionPattern, integerPattern, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, roundIncrement, scientificNotation, significantPattern, suffix;
 
 	pattern = pattern.match( numberPatternRe );
@@ -22,7 +20,6 @@ return function( pattern, cldr, options ) {
 		return null;
 	}
 
-	options = options || {};
 	prefix = pattern[ 1 ];
 	padding = pattern[ 3 ];
 	significantPattern = pattern[ 8 ];
