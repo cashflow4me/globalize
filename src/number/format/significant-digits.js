@@ -34,7 +34,7 @@ return function( number, minimumSignificantDigits, maximumSignificantDigits, rou
 	number = ( +number ).toString( 10 );
 
 	if ( (/e/).test( number ) ) {
-		throw new Error( "Ops! Integers out of (x^20, x^-7) not supported" );
+		throw new Error( "Ops! Integers out of (1e21, 1e-7) not supported" );
 	}
 
 	// Add trailing zeros if necessary.
