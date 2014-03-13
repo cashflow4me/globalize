@@ -57,7 +57,7 @@ test( "should format decimals", function() {
 test( "should limit maximum fraction digits", function() {
 	equal( format( pi, "0.##", en ), "3.14", "" );
 	equal( format( pi, "0.0#", en ), "3.14", "" );
-	equal( format( pi, "0.####", en ), "3.1415", "" );
+	equal( format( pi, "0.####", en ), "3.1416", "" );
 	equal( format( 0.10004, "0.##", en ), "0.1", "" );
 });
 
@@ -88,7 +88,26 @@ test( "should allow integer and fraction options override", function() {
 	}), "01.100", "" );
 
 	// Use minimumFractionDigits, but no maximumFractionDigits. Sanity check.
-	equal( format( pi, "0.##", en, { minimumFractionDigits: 4 }), "3.1415", "" );
+	equal( format( pi, "0.##", en, { minimumFractionDigits: 4 }), "3.1416", "" );
+});
+
+test( "should allow different rounding options", function() {
+	equal( format( pi, "0.##", en, { round: "ceil" } ), "3.15", "" );
+	equal( format( pi, "0.##", en, { round: "floor"} ), "3.14", "" );
+	equal( format( pi, "0.##", en, { round: "round" } ), "3.14", "" );
+	equal( format( pi, "0.##", en, { round: "truncate"} ), "3.14", "" );
+	equal( format( pi, "0.####", en, { round: "ceil" } ), "3.1416", "" );
+	equal( format( pi, "0.####", en, { round: "floor"} ), "3.1415", "" );
+	equal( format( pi, "0.####", en, { round: "round" } ), "3.1416", "" );
+	equal( format( pi, "0.####", en, { round: "truncate"} ), "3.1415", "" );
+	equal( format( -pi, "0.##", en, { round: "ceil" } ), "-3.14", "" );
+	equal( format( -pi, "0.##", en, { round: "floor"} ), "-3.15", "" );
+	equal( format( -pi, "0.##", en, { round: "round" } ), "-3.14", "" );
+	equal( format( -pi, "0.##", en, { round: "truncate"} ), "-3.14", "" );
+	equal( format( -pi, "0.####", en, { round: "ceil" } ), "-3.1415", "" );
+	equal( format( -pi, "0.####", en, { round: "floor"} ), "-3.1416", "" );
+	equal( format( -pi, "0.####", en, { round: "round" } ), "-3.1416", "" );
+	equal( format( -pi, "0.####", en, { round: "truncate"} ), "-3.1415", "" );
 });
 
 /**
