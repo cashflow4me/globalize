@@ -3,9 +3,10 @@ define([
 	"./minus-sign",
 	"./numbering-system",
 	"./symbol-name",
+	"../util/number/round",
 	"../util/number/truncate",
 	"../util/string/pad"
-], function( numberFormatProperties, numberMinusSign, numberNumberingSystem, numberSymbolName, numberTruncate, stringPad ) {
+], function( numberFormatProperties, numberMinusSign, numberNumberingSystem, numberSymbolName, numberRound, numberTruncate, stringPad ) {
 
 /**
  * format( number, pattern, cldr )
@@ -17,14 +18,15 @@ define([
  * @cldr [Cldr instance].
  *
  * @options [Object]:
- * - minimumIntegerDigits: [Number] 
- * - minimumFractionDigits, maximumFractionDigits: [Number] 
+ * - minimumIntegerDigits [Number] 
+ * - minimumFractionDigits, maximumFractionDigits [Number] 
+ * - round [String] "ceil", "floor", "round" (default), or "truncate".
  *
  * Return the formatted number.
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( number, pattern, cldr, options ) {
-	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, order, padding, prefix, properties, ret, roundIncrement, suffix,
+	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix,
 	numberingSystem = numberNumberingSystem( cldr );
 
 	// Infinity, -Infinity, or NaN
@@ -37,6 +39,7 @@ return function( number, pattern, cldr, options ) {
 	}
 
 	options = options || {};
+	round = numberRound( options.round );
 	properties = numberFormatProperties( pattern );
 	prefix = properties[ 0 ];
 	padding = properties[ 1 ];
@@ -76,14 +79,12 @@ return function( number, pattern, cldr, options ) {
 
 			// Rounding
 			if ( roundIncrement ) {
-				aux = Math.round( aux / roundIncrement ) * roundIncrement;
-			}
+				aux = round( aux, roundIncrement );
 
 			// Maximum fraction digits
-			order = Math.pow( 10, maximumFractionDigits );
-
-			// Truncate
-			aux = numberTruncate( aux * order) / order;
+			} else {
+				aux = round( aux, Math.pow( 10, -maximumFractionDigits ) );
+			}
 
 			// Minimum fraction digits
 			if ( minimumFractionDigits ) {
