@@ -1,10 +1,9 @@
 define([
+	"./format/integer-fraction-digits",
 	"./format/properties",
 	"./symbol",
-	"../util/number/round",
-	"../util/number/truncate",
-	"../util/string/pad"
-], function( numberFormatProperties, numberSymbol, numberRound, numberTruncate, stringPad ) {
+	"../util/number/round"
+], function( numberFormatIntegerFractionDigits, numberFormatProperties, numberSymbol, numberRound ) {
 
 /**
  * format( number, pattern, cldr )
@@ -60,42 +59,7 @@ return function( number, pattern, cldr, options ) {
 
 	// Integer and fractional format
 	} else {
-
-		// Sanity check.
-		if ( minimumFractionDigits > maximumFractionDigits ) {
-			maximumFractionDigits = minimumFractionDigits;
-		}
-
-		// Fraction
-		if ( maximumFractionDigits ) {
-
-			// Rounding
-			if ( roundIncrement ) {
-				number = round( number, roundIncrement );
-
-			// Maximum fraction digits
-			} else {
-				number = round( number, Math.pow( 10, -maximumFractionDigits ) );
-			}
-
-			// Minimum fraction digits
-			if ( minimumFractionDigits ) {
-				number = String( number ).split( "." );
-				number[ 1 ] = stringPad( number[ 1 ] || "", minimumFractionDigits, true );
-				number = number.join( "." );
-			}
-		} else {
-			number = numberTruncate( number );
-		}
-
-		number = String( number );
-
-		// Minimum integer digits
-		if ( minimumIntegerDigits ) {
-			number = number.split( "." );
-			number[ 0 ] = stringPad( number[ 0 ], minimumIntegerDigits );
-			number = number.join( "." );
-		}
+		number = numberFormatIntegerFractionDigits( number, minimumIntegerDigits, minimumFractionDigits, maximumFractionDigits, round, roundIncrement );
 	}
 
 	ret += number;
