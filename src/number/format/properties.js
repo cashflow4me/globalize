@@ -13,7 +13,7 @@ define([
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( pattern ) {
-	var fractionPattern, integerPattern, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, roundIncrement, scientificNotation, significantPattern, suffix;
+	var aux1, aux2, fractionPattern, integerFractionOrSignificantPattern, integerPattern, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, primaryGroupingSize, roundIncrement, scientificNotation, secondaryGroupingSize, significantPattern, suffix;
 
 	pattern = pattern.match( numberPatternRe );
 	if ( !pattern ) {
@@ -22,6 +22,7 @@ return function( pattern ) {
 
 	prefix = pattern[ 1 ];
 	padding = pattern[ 3 ];
+	integerFractionOrSignificantPattern = pattern[ 4 ];
 	significantPattern = pattern[ 8 ];
 	scientificNotation = pattern[ 9 ];
 	suffix = pattern[ 10 ];
@@ -67,6 +68,19 @@ return function( pattern ) {
 		throw new Error( "Padding not implemented" );
 	}
 
+	// Grouping
+	if ( ( aux1 = integerFractionOrSignificantPattern.lastIndexOf( "," ) ) !== -1 ) {
+
+		// Primary grouping size is the interval between the last group separator and the end of the integer (or the end of the significant pattern).
+		aux2 = integerFractionOrSignificantPattern.split( "." )[ 0 ];
+		primaryGroupingSize = aux2.length - aux1 - 1;
+
+		// Secondary grouping size is the interval between the last two group separators.
+		if ( ( aux2 = integerFractionOrSignificantPattern.lastIndexOf( ",", aux1 - 1 ) ) !== -1 ) {
+			secondaryGroupingSize = aux1 - 1 - aux2;
+		}
+	}
+
 	// Return:
 	// 0: @prefix String
 	// 1: @padding Array [ <character>, <count> ] TODO
@@ -74,7 +88,9 @@ return function( pattern ) {
 	// 3: @minimumFractionDigits and
 	// 4: @maximumFractionDigits are non-negative integer Number values indicating the minimum and maximum fraction digits to be used. Numbers will be rounded or padded with trailing zeroes if necessary.
 	// 5: @roundIncrement Decimal round increment or null
-	// 6: @suffix String
+	// 6: @primaryGroupingSize
+	// 7: @secondaryGroupingSize
+	// 8: @suffix String
 	return [
 		prefix,
 		padding,
@@ -82,6 +98,8 @@ return function( pattern ) {
 		minimumFractionDigits,
 		maximumFractionDigits,
 		roundIncrement,
+		primaryGroupingSize,
+		secondaryGroupingSize,
 		suffix
 	];
 };

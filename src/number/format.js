@@ -1,10 +1,11 @@
 define([
+	"./format/grouping-separator",
 	"./format/properties",
 	"./symbol",
 	"../util/number/round",
 	"../util/number/truncate",
 	"../util/string/pad"
-], function( numberFormatProperties, numberSymbol, numberRound, numberTruncate, stringPad ) {
+], function( numberFormatGroupingSeparator, numberFormatProperties, numberSymbol, numberRound, numberTruncate, stringPad ) {
 
 /**
  * format( number, pattern, cldr )
@@ -19,12 +20,13 @@ define([
  * - minimumIntegerDigits [Number] 
  * - minimumFractionDigits, maximumFractionDigits [Number] 
  * - round [String] "ceil", "floor", "round" (default), or "truncate".
+ * - useGrouping [Boolean] default true.
  *
  * Return the formatted number.
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( number, pattern, cldr, options ) {
-	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix;
+	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, primaryGroupingSize, properties, ret, round, roundIncrement, secondaryGroupingSize, suffix;
 
 	// Infinity, -Infinity, or NaN
 	if ( !isFinite( number ) ) {
@@ -41,7 +43,9 @@ return function( number, pattern, cldr, options ) {
 	minimumFractionDigits = options.minimumFractionDigits || properties[ 3 ];
 	maximumFractionDigits = options.maximumFractionDigits || properties[ 4 ];
 	roundIncrement = properties[ 5 ];
-	suffix = properties[ 6 ];
+	primaryGroupingSize = properties[ 6 ];
+	secondaryGroupingSize = properties[ 7 ];
+	suffix = properties[ 8 ];
 
 	ret = prefix;
 
@@ -96,6 +100,11 @@ return function( number, pattern, cldr, options ) {
 			number[ 0 ] = stringPad( number[ 0 ], minimumIntegerDigits );
 			number = number.join( "." );
 		}
+	}
+
+	// Grouping separators
+	if ( primaryGroupingSize && !options.useGrouping ) {
+		number = numberFormatGroupingSeparator( number, primaryGroupingSize, secondaryGroupingSize );
 	}
 
 	ret += number;

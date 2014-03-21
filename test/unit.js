@@ -17,6 +17,7 @@ require([
 	"./unit/date/parse",
 
 	/* number */
+	"./unit/number/format/grouping-separator",
 	"./unit/number/format"
 
 ], function() {
