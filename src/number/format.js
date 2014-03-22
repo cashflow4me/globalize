@@ -1,12 +1,10 @@
 define([
 	"./format/properties",
-	"./minus-sign",
-	"./numbering-system",
-	"./symbol-name",
+	"./symbol",
 	"../util/number/round",
 	"../util/number/truncate",
 	"../util/string/pad"
-], function( numberFormatProperties, numberMinusSign, numberNumberingSystem, numberSymbolName, numberRound, numberTruncate, stringPad ) {
+], function( numberFormatProperties, numberSymbol, numberRound, numberTruncate, stringPad ) {
 
 /**
  * format( number, pattern, cldr )
@@ -26,16 +24,12 @@ define([
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( number, pattern, cldr, options ) {
-	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix,
-	numberingSystem = numberNumberingSystem( cldr );
+	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix;
 
 	// Infinity, -Infinity, or NaN
 	if ( !isFinite( number ) ) {
-		ret = cldr.main([
-			"numbers/symbols-numberSystem-" + numberingSystem,
-			isNaN( number ) ? "nan" : "infinity"
-		]);
-		return number === -Infinity ? numberMinusSign( cldr ) + ret : ret;
+		aux = numberSymbol( isNaN( number ) ? "nan" : "infinity", cldr );
+		return number === -Infinity ? numberSymbol( "-", cldr ) + aux : aux;
 	}
 
 	options = options || {};
@@ -49,7 +43,7 @@ return function( number, pattern, cldr, options ) {
 	roundIncrement = properties[ 5 ];
 	suffix = properties[ 6 ];
 
-	ret = [ prefix ];
+	ret = prefix;
 
 	// Percent
 	if ( pattern.indexOf( "%" ) !== -1 ) {
@@ -72,41 +66,39 @@ return function( number, pattern, cldr, options ) {
 			maximumFractionDigits = minimumFractionDigits;
 		}
 
-		aux = number;
-
 		// Fraction
 		if ( maximumFractionDigits ) {
 
 			// Rounding
 			if ( roundIncrement ) {
-				aux = round( aux, roundIncrement );
+				number = round( number, roundIncrement );
 
 			// Maximum fraction digits
 			} else {
-				aux = round( aux, Math.pow( 10, -maximumFractionDigits ) );
+				number = round( number, Math.pow( 10, -maximumFractionDigits ) );
 			}
 
 			// Minimum fraction digits
 			if ( minimumFractionDigits ) {
-				aux = String( aux ).split( "." );
-				aux[ 1 ] = stringPad( aux[ 1 ] || "", minimumFractionDigits, true );
-				aux = aux.join( "." );
+				number = String( number ).split( "." );
+				number[ 1 ] = stringPad( number[ 1 ] || "", minimumFractionDigits, true );
+				number = number.join( "." );
 			}
 		} else {
-			aux = numberTruncate( aux );
+			number = numberTruncate( number );
 		}
 
-		aux = String( aux );
+		number = String( number );
 
 		// Minimum integer digits
 		if ( minimumIntegerDigits ) {
-			aux = aux.split( "." );
-			aux[ 0 ] = stringPad( aux[ 0 ], minimumIntegerDigits );
-			aux = aux.join( "." );
+			number = number.split( "." );
+			number[ 0 ] = stringPad( number[ 0 ], minimumIntegerDigits );
+			number = number.join( "." );
 		}
-
-		ret.push( aux );
 	}
+
+	ret += number;
 
 	// Scientific notation
 	if ( false ) {
@@ -118,14 +110,14 @@ return function( number, pattern, cldr, options ) {
 		throw new Error( "Padding not implemented" );
 	}
 
-	ret.push( suffix );
+	ret += suffix;
 
 	// Symbols
-	return ret.join( "" ).replace( /[.,\-+E%\u2030]/g, function( symbol ) {
-		return cldr.main([
-			"numbers/symbols-numberSystem-" + numberingSystem,
-			numberSymbolName[ symbol ]
-		]);
+	return ret.replace( /'[^']+'|[.,\-+E%\u2030]/g, function( symbol ) {
+		if ( symbol.charAt( 0 ) === "'" ) {
+			return symbol;
+		}
+		return numberSymbol( symbol, cldr );
 	});
 };
 
