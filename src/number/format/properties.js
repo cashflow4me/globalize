@@ -17,7 +17,7 @@ return function( pattern ) {
 
 	pattern = pattern.match( numberPatternRe );
 	if ( !pattern ) {
-		return null;
+		throw new Error( "Invalid pattern: " + pattern );
 	}
 
 	prefix = pattern[ 1 ];
