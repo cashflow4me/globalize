@@ -9,9 +9,9 @@ define([
 /**
  * format( number, pattern, cldr )
  *
- * @number [Number].
+ * @number [Number] positive number only.
  *
- * @pattern [String] raw pattern for numbers.
+ * @pattern [String] positive or negative (not both) number pattern.
  *
  * @cldr [Cldr instance].
  *
@@ -24,12 +24,11 @@ define([
  * ref: http://www.unicode.org/reports/tr35/tr35-numbers.html
  */
 return function( number, pattern, cldr, options ) {
-	var aux, maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix;
+	var maximumFractionDigits, minimumFractionDigits, minimumIntegerDigits, padding, prefix, properties, ret, round, roundIncrement, suffix;
 
-	// Infinity, -Infinity, or NaN
-	if ( !isFinite( number ) ) {
-		aux = numberSymbol( isNaN( number ) ? "nan" : "infinity", cldr );
-		return number === -Infinity ? numberSymbol( "-", cldr ) + aux : aux;
+	// NaN
+	if ( isNaN( number ) ) {
+		return numberSymbol( "nan", cldr );
 	}
 
 	options = options || {};
@@ -42,6 +41,11 @@ return function( number, pattern, cldr, options ) {
 	maximumFractionDigits = options.maximumFractionDigits || properties[ 4 ];
 	roundIncrement = properties[ 5 ];
 	suffix = properties[ 6 ];
+
+	// Infinity (observe that isNaN() has been checked above)
+	if ( !isFinite( number ) ) {
+		return prefix + numberSymbol( "infinity", cldr ) + suffix;
+	}
 
 	ret = prefix;
 
