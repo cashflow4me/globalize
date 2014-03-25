@@ -71,13 +71,6 @@ test( "should localize decimal separator symbol (.)", function() {
 	equal( format( pi, "0.##", ar ), "3٫14", "" );
 });
 
-test( "should allow rounding", function() {
-	equal( format( pi, "0.10", en ), "3.10", "" );
-	equal( format( pi, "0.20", en ), "3.20", "" );
-	equal( format( pi, "0.5", en ), "3.0", "" );
-	equal( format( pi, "0.1", en ), "3.1", "" );
-});
-
 test( "should allow integer and fraction options override", function() {
 	equal( format( pi, "0.##", en, { minimumIntegerDigits: 2 }), "03.14", "" );
 	equal( format( pi, "0.##", en, { maximumFractionDigits: 1 }), "3.1", "" );
@@ -89,6 +82,13 @@ test( "should allow integer and fraction options override", function() {
 
 	// Use minimumFractionDigits, but no maximumFractionDigits. Sanity check.
 	equal( format( pi, "0.##", en, { minimumFractionDigits: 4 }), "3.1416", "" );
+});
+
+test( "should allow rounding", function() {
+	equal( format( pi, "0.10", en ), "3.10", "" );
+	equal( format( pi, "0.20", en ), "3.20", "" );
+	equal( format( pi, "0.5", en ), "3.0", "" );
+	equal( format( pi, "0.1", en ), "3.1", "" );
 });
 
 test( "should allow different rounding options", function() {
