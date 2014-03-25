@@ -72,9 +72,9 @@ test( "should localize decimal separator symbol (.)", function() {
 });
 
 test( "should allow integer and fraction options override", function() {
-	equal( format( pi, "0.##", en, { minimumIntegerDigits: 2 }), "03.14", "" );
-	equal( format( pi, "0.##", en, { maximumFractionDigits: 1 }), "3.1", "" );
-	equal( format( 0.1, "0.##", en, { minimumFractionDigits: 2 }), "0.10", "" );
+	equal( format( pi, "0.##", en, { minimumIntegerDigits: 2 } ), "03.14", "" );
+	equal( format( pi, "0.##", en, { maximumFractionDigits: 1 } ), "3.1", "" );
+	equal( format( 0.1, "0.##", en, { minimumFractionDigits: 2 } ), "0.10", "" );
 	equal( format( 1.1, "0.##", en, {
 		minimumIntegerDigits: 2,
 		minimumFractionDigits: 3
