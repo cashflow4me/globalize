@@ -46,6 +46,14 @@ test( "should not limit the maximum number of digits of integers", function() {
 	equal( format( earthDiameter, "#0", en ), "12735", "" );
 });
 
+test( "should format negative integer", function() {
+	equal( format( -earthDiameter, "0", en ), "-12735", "" );
+	equal( format( -earthDiameter, "0;(0)", en ), "(12735)", "" );
+
+	// The number of digits, minimal digits, and other characteristics shall be ignored in the negative subpattern.
+	equal( format( -earthDiameter, "0;(0.0##)", en ), "(12735)", "" );
+});
+
 /**
  *  Decimals
  */
@@ -110,6 +118,14 @@ test( "should allow different rounding options", function() {
 	equal( format( -pi, "0.####", en, { round: "truncate"} ), "-3.1415", "" );
 });
 
+test( "should format negative decimal", function() {
+	equal( format( -pi, "0.##", en ), "-3.14", "" );
+	equal( format( -pi, "0.##;(0.##)", en ), "(3.14)", "" );
+
+	// The number of digits, minimal digits, and other characteristics shall be ignored in the negative subpattern.
+	equal( format( -pi, "0.##;(0)", en ), "(3.14)", "" );
+});
+
 /**
  *  Percent
  */
@@ -126,6 +142,12 @@ test( "should format percent", function() {
 
 test( "should localize percent symbol (%)", function() {
 	equal( format( 0.5, "#0%", ar ), "50٪", "" );
+});
+
+test( "should format negative percentage", function() {
+	equal( format( -0.1, "0%", en ), "-10%", "" );
+	equal( format( -0.1, "0%;(0%)", en ), "(10%)", "" );
+	equal( format( -0.1, "0%;(0)%", en ), "(10)%", "" );
 });
 
 /**
@@ -147,6 +169,12 @@ test( "should format per mille", function() {
 
 test( "should localize per mille symbol (\u2030)", function() {
 	equal( format( 0.5, "#0\u2030", ar ), "500؉", "" );
+});
+
+test( "should format negative mille", function() {
+	equal( format( -0.001, "0\u2030", en ), "-1\u2030", "" );
+	equal( format( -0.001, "0\u2030;(0\u2030)", en ), "(1\u2030)", "" );
+	equal( format( -0.001, "0\u2030;(0)\u2030", en ), "(1)\u2030", "" );
 });
 
 });

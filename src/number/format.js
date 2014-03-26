@@ -31,15 +31,29 @@ return function( number, pattern, cldr, options ) {
 		return numberSymbol( "nan", cldr );
 	}
 
+	pattern = pattern.split( ";" );
+
 	options = options || {};
 	round = numberRound( options.round );
-	properties = numberFormatProperties( pattern );
-	prefix = properties[ 0 ];
+	properties = numberFormatProperties( pattern[ 0 ] );
 	padding = properties[ 1 ];
 	minimumIntegerDigits = options.minimumIntegerDigits || properties[ 2 ];
 	minimumFractionDigits = options.minimumFractionDigits || properties[ 3 ];
 	maximumFractionDigits = options.maximumFractionDigits || properties[ 4 ];
 	roundIncrement = properties[ 5 ];
+
+	// Negative pattern
+	// "If there is an explicit negative subpattern, it serves only to specify the negative prefix and suffix" UTS#35
+	if ( number < 0 ) {
+
+		// "If there is no explicit negative subpattern, the negative subpattern is the localized minus sign prefixed to the positive subpattern" UTS#35
+		pattern = pattern[ 1 ] || "-" + pattern[ 0 ];
+		properties = numberFormatProperties( pattern );
+	} else {
+		pattern = pattern[ 0 ];
+	}
+
+	prefix = properties[ 0 ];
 	suffix = properties[ 6 ];
 
 	// Infinity (observe that isNaN() has been checked above)
@@ -100,6 +114,9 @@ return function( number, pattern, cldr, options ) {
 			number[ 0 ] = stringPad( number[ 0 ], minimumIntegerDigits );
 			number = number.join( "." );
 		}
+
+		// Remove the possible number minus sign
+		number = number.replace( /^-/, "" );
 	}
 
 	ret += number;
